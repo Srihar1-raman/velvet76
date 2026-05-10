@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description:
     "Velvet Experience is a concierge chauffeur service for Gurugram and Delhi NCR, with luxury point-to-point, airport, and hourly rides.",
   applicationName: "Velvet Experience",
+  manifest: "/manifest.json",
   openGraph: {
     title: "Velvet Experience - Your Time Deserves Better",
     description:
@@ -46,7 +47,11 @@ export default function RootLayout({
       <head>
         {/* Google Fonts — loaded at runtime by the browser, not at build time */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=Outfit:wght@200;300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap"

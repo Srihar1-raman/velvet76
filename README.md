@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Velvet Experience
+
+Private chauffeur service for Delhi NCR and IGI Airport.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- [Bun](https://bun.sh) v1.3+
+- A Google Maps JavaScript API key (with Maps, Places, Directions APIs enabled)
+
+### Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install dependencies
+bun install
+
+# Copy env file and add your API key
+cp .env.local.example .env.local
+# Edit .env.local and set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=...
+
+# Run development server
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Building
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+bun run build
+bun run start
+```
 
-## Learn More
+### Optimize images (convert to WebP)
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+bun run optimize-assets
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This converts all JPG/PNG assets in `public/assets/` to WebP for faster load times.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Routes
 
-## Deploy on Vercel
+| Route | Description |
+|---|---|
+| `/` | Scrolling landing page — all sections |
+| `/reserve` | Standalone booking island for ad campaigns |
+| `/book` | Full booking flow (journey → tier → confirm) |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tech Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Next.js 15** (App Router, React 19)
+- **Bun** (package manager + runtime)
+- **Tailwind CSS v4** (CSS-first config)
+- **GSAP** (all animations)
+- **Google Maps JS API** (`@vis.gl/react-google-maps` + vanilla JS for compatibility)
+- **Zod** (booking state validation)
+- **Lucide React** (icons)
+
+## Environment Variables
+
+```env
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_key_here
+```
+
+Required for: maps, autocomplete, distance/duration estimates.  
+The app works without it — maps show a placeholder and location inputs fall back to plain text fields.
