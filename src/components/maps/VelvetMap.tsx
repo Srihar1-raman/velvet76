@@ -3,6 +3,13 @@
 import { useEffect, useRef } from "react";
 import { MAP_STYLE, DEFAULT_CENTER, DEFAULT_ZOOM, DELHI_NCR_BOUNDS } from "@/lib/maps";
 
+// Module augmentation to safely add our init callback to window
+declare global {
+  interface Window {
+    __velvetMapsInit?: () => void;
+  }
+}
+
 interface VelvetMapProps {
   apiKey: string;
   origin?: string;
@@ -55,7 +62,7 @@ export default function VelvetMap({
       const existing = document.querySelector('script[src*="maps.googleapis.com"]');
       if (!existing) {
         const callbackName = "__velvetMapsInit";
-        (window as unknown as Record<string, unknown>)[callbackName] = initMap;
+        window[callbackName] = initMap;
 
         const script = document.createElement("script");
         script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&libraries=places,geometry&region=IN&language=en&callback=${callbackName}`;

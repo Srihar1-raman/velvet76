@@ -19,6 +19,38 @@ interface LocationInputProps {
   apiKey: string;
 }
 
+interface AutocompleteServiceResult {
+  place_id: string;
+  structured_formatting: {
+    main_text: string;
+    secondary_text?: string;
+  };
+  description: string;
+}
+
+function toSafePredictions(results: unknown): PredictionItem[] {
+  if (!Array.isArray(results)) return [];
+  return results
+    .filter(
+      (r) =>
+        r !== null &&
+        typeof r === "object" &&
+        typeof (r as Record<string, unknown>).place_id === "string" &&
+        typeof (r as Record<string, unknown>).structured_formatting === "object"
+    )
+    .map((r) => {
+      const item = r as AutocompleteServiceResult;
+      return {
+        place_id: item.place_id,
+        structured_formatting: {
+          main_text: item.structured_formatting.main_text ?? "",
+          secondary_text: item.structured_formatting.secondary_text,
+        },
+        description: item.description ?? "",
+      };
+    });
+}
+
 interface PredictionItem {
   place_id: string;
   structured_formatting: {
@@ -100,7 +132,7 @@ export default function LocationInput({
             status === window.google.maps.places.PlacesServiceStatus.OK &&
             results
           ) {
-            setPredictions(results.slice(0, 5) as unknown as PredictionItem[]);
+            setPredictions(toSafePredictions(results).slice(0, 5));
             setIsOpen(true);
           } else {
             setPredictions([]);

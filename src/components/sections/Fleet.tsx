@@ -23,16 +23,11 @@ export default function Fleet() {
     ambientRef.current.style.background = `radial-gradient(ellipse 70% 50% at 50% 60%, ${tier.accentGlow}, transparent 70%)`;
   }, []);
 
-  const selectTier = useCallback((idx: number) => {
-    setActiveTier(idx);
-    setActiveCar(0);
-    updateAmbient(idx);
-    // Reset auto timer on manual interaction
-    if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
-    autoTimerRef.current = setTimeout(startAutoPlay, 4000);
-  }, [updateAmbient]);
+  // Use a ref to avoid stale closures in the recursive timer
+  const startAutoPlayRef = useRef<() => void>(() => {});
 
   const startAutoPlay = useCallback(() => {
+    if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
     autoTimerRef.current = setTimeout(() => {
       setActiveTier((prev) => {
         const next = (prev + 1) % TIERS.length;
@@ -40,8 +35,22 @@ export default function Fleet() {
         updateAmbient(next);
         return next;
       });
-      startAutoPlay();
+      startAutoPlayRef.current();
     }, 4000);
+  }, [updateAmbient]);
+
+  // Keep the ref pointing to the latest version of startAutoPlay
+  useEffect(() => {
+    startAutoPlayRef.current = startAutoPlay;
+  }, [startAutoPlay]);
+
+  const selectTier = useCallback((idx: number) => {
+    setActiveTier(idx);
+    setActiveCar(0);
+    updateAmbient(idx);
+    // Reset auto timer on manual interaction
+    if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
+    autoTimerRef.current = setTimeout(() => startAutoPlayRef.current(), 4000);
   }, [updateAmbient]);
 
   useEffect(() => {
@@ -50,7 +59,7 @@ export default function Fleet() {
     return () => {
       if (autoTimerRef.current) clearTimeout(autoTimerRef.current);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [updateAmbient, startAutoPlay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <section

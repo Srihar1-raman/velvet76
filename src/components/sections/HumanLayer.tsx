@@ -72,6 +72,7 @@ export default function HumanLayer() {
       track.removeEventListener("touchstart", onTouchStart);
       track.removeEventListener("touchmove", onTouchMove);
       track.removeEventListener("touchend", onTouchEnd);
+      if (autoTimerRef.current) clearInterval(autoTimerRef.current);
     };
   }, []);
 

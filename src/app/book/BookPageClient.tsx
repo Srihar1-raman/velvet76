@@ -42,6 +42,7 @@ export default function BookPageClient({ mapsApiKey }: BookPageClientProps) {
   const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>("tier");
   const [routeLoaded, setRouteLoaded] = useState(false);
+  const [tierError, setTierError] = useState("");
 
   // Sync URL params into store on mount
   useEffect(() => {
@@ -296,13 +297,24 @@ export default function BookPageClient({ mapsApiKey }: BookPageClientProps) {
                 hourlyPackage={state.hourlyPackage}
               />
 
+              {tierError && (
+                <p
+                  role="alert"
+                  className="text-sm"
+                  style={{ color: "#f87171", margin: 0 }}
+                >
+                  {tierError}
+                </p>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
                   if (!state.selectedTier) {
-                    alert("Please select a tier to continue.");
+                    setTierError("Please select a tier to continue.");
                     return;
                   }
+                  setTierError("");
                   setStep("confirm");
                 }}
                 className="btn btn-gold w-full"
