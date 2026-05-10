@@ -1,0 +1,1 @@
+window.__VELVET_GOOGLE_MAPS_API_KEY = window.__VELVET_GOOGLE_MAPS_API_KEY || "";
