@@ -1,0 +1,98 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly Monday 04:00 UTC — catches new CVEs against unchanged code.
+    - cron: "0 4 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: read
+  actions: read
+
+jobs:
+  # 1. Secret scanning — gitleaks against the diff (PR) or full history (push)
+  gitleaks:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+  # 2. CodeQL — JS/TS security suite
+  codeql:
+    name: CodeQL (javascript-typescript)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-and-quality
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript"
+
+  # 3. Lint + booking-policy unit tests
+  lint-and-test:
+    name: Lint + booking policy tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: ESLint
+        run: npm run lint
+      - name: Unit tests (booking policy matrix)
+        run: npm test
+
+  # 4. Dependency audit — block on high CVEs
+  audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Audit (high)
+        run: npm audit --audit-level=high
+
+  # 5. Bundle audit — fail if mock OTP / dev constants survive into prod build
+  bundle-audit:
+    name: Bundle audit (no dev OTP in prod)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build (production)
+        run: npm run build
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_DEV_MODE: ""
+      - name: Verify no dev OTP / API-key residue
+        run: npm run audit:bundle

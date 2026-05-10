@@ -1,0 +1,43 @@
+title = "Velvet Experience gitleaks config"
+
+# Inherit gitleaks defaults (AWS, Stripe, GitHub PATs, etc.)
+[extend]
+useDefault = true
+
+[[rules]]
+id          = "google-maps-api-key"
+description = "Google Maps / Places JS API key (AIza prefix)"
+regex       = '''AIza[0-9A-Za-z_\-]{35}'''
+keywords    = ["AIza"]
+tags        = ["key", "google", "maps"]
+
+[[rules]]
+id          = "hardcoded-otp"
+description = "Hardcoded OTP / passcode / PIN literal"
+regex       = '''(?i)(otp|passcode|pin)\s*[:=]\s*["'](\d{4,8})["']'''
+tags        = ["secret", "auth"]
+
+[[rules]]
+id          = "dev-otp-constants"
+description = "Common dev OTP constants assigned to named identifiers"
+regex       = '''(?i)\b(?:DEV_OTP|MOCK_OTP|TEST_OTP|DEFAULT_OTP|FAKE_OTP)\s*[:=]\s*["'](\d{4,8})["']'''
+tags        = ["secret", "auth", "dev"]
+
+[allowlist]
+description = "Files where the mock OTP is allowed by design"
+paths = [
+    # The mock OTP value is intentionally centralised here behind a dev-mode
+    # flag. CI's bundle-audit step (`npm run audit:bundle`) verifies the
+    # literal does not survive into the production bundle.
+    '''src/lib/devConfig\.ts''',
+    # Allowlist demo / fixtures + the security review doc itself.
+    '''SECURITY_REVIEW\.md''',
+    '''\.gitleaks\.toml''',
+]
+
+regexes = [
+    # WhatsApp / phone display strings are not credentials.
+    '''wa\.me/91\d{10}''',
+    # License-plate copy in TrackClient demo.
+    '''DL 0\d AB \d{4}''',
+]
