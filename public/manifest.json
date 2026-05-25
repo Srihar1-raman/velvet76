@@ -1,0 +1,23 @@
+{
+  "name": "Velvet Experience",
+  "short_name": "Velvet",
+  "description": "Private chauffeur rides across Gurugram and Delhi NCR.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08070b",
+  "theme_color": "#08070b",
+  "icons": [
+    {
+      "src": "/assets/monogram-gold.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/monogram-gold.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["travel", "transportation"],
+  "orientation": "portrait"
+}
